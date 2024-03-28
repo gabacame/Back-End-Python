@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-app = APIRouter() #Initial context
+app = APIRouter(prefix = '/items', 
+                   tags = ["items"],
+                   responses={404: {"messege":"Not Found"}}) #Initial context
 
 # Entidad item
 class Item(BaseModel):
@@ -22,21 +24,21 @@ async def itemsjson():
             {"iD":"0003", "name":"Iteam 3", "quantity": 17, "price":[64,"MXN"]},
             {"iD":"0004", "name":"Iteam 4", "quantity": 11, "price":[16,"MXN"]}]
 
-@app.get("/items")
+@app.get("/")
 async def items():
     return items_list
 
 #PATH Fix parameters
-@app.get("/item/{id}")
+@app.get("/{id}")
 async def item(id: str):
     return search_item(id)
 
 #QUERY may not necessary to make the petition
-@app.get("/item/")
+@app.get("/")
 async def item(id: str):
     return search_item(id)
 
-@app.post("/item/",status_code=201)
+@app.post("/",status_code=201)
 async def item(item: Item):
 
     if type(search_item(item.id))==Item:
@@ -47,7 +49,7 @@ async def item(item: Item):
         items_list.append(item)
         return {"succes":"Item succefully added to inventory"}
 
-@app.put("/item/")
+@app.put("/")
 async def item(item: Item):
     found = False
     for index,saved_item in enumerate(items_list):
@@ -58,7 +60,7 @@ async def item(item: Item):
     if not found:
         return {"error":"Item ID not found"}
     
-@app.delete("/item/{id}")
+@app.delete("/{id}")
 async def item(id:str):
         found = False
         for index,saved_item in enumerate(items_list):
