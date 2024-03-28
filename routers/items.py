@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-app = FastAPI() #Initial context
+app = APIRouter() #Initial context
 
 # Entidad item
 class Item(BaseModel):
@@ -36,11 +36,12 @@ async def item(id: str):
 async def item(id: str):
     return search_item(id)
 
-@app.post("/item/")
+@app.post("/item/",status_code=201)
 async def item(item: Item):
 
     if type(search_item(item.id))==Item:
-        return {"error":"Item ID already exist"}
+        raise HTTPException(status_code=404, detail = "Item ID already exist")
+        #return {"error":"Item ID already exist"}
     else:
         print("Item succefully added to inventory") 
         items_list.append(item)
